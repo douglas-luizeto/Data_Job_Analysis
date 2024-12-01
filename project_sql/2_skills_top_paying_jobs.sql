@@ -6,38 +6,30 @@ Question: What are the skills required for these top-paying remote jobs?
        helping job seekers understand which skills to develop that align with top salaries
 */
 
-WITH top_skills_ids AS (
+WITH top_paying_jobs AS (
     SELECT
-        skill_id,
-        count(job_id) AS number_of_jobs
-    FROM 
-        skills_job_dim
-    WHERE job_id IN (
-        SELECT
-            job_id
-        FROM
-            job_postings_fact j
-            LEFT JOIN company_dim c
-                ON j.company_id = c.company_id
-        WHERE
-            job_title_short = 'Data Analyst' AND
-            job_location = 'Anywhere' AND
-            salary_year_avg IS NOT NULL
-        ORDER BY salary_year_avg DESC
-        LIMIT 10
-    )
-    GROUP BY skill_id 
-    ORDER BY number_of_jobs DESC
+        job_id,
+        job_title,
+        c.name AS company_name,
+        salary_year_avg
+    FROM
+        job_postings_fact j
+        LEFT JOIN company_dim c
+            ON j.company_id = c.company_id
+    WHERE
+        job_title_short = 'Data Scientist' AND
+        job_location = 'Anywhere' AND
+        salary_year_avg IS NOT NULL
+    ORDER BY salary_year_avg DESC
+    LIMIT 10
 )
 
 SELECT
-    s.skill_id,
+    tpj.*,
     s.skills,
-    s.type,
-    ts.number_of_jobs
+    s.type
 FROM 
-    top_skills_ids ts
-    LEFT JOIN skills_dim s ON ts.skill_id = s.skill_id
-ORDER BY 
-    ts.number_of_jobs DESC;
+    top_paying_jobs tpj
+    INNER JOIN skills_job_dim sj ON tpj.job_id = sj.job_id
+    INNER JOIN skills_dim s ON sj.skill_id = s.skill_id;
 

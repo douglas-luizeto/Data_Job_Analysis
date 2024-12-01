@@ -7,7 +7,7 @@ Question: What are the most in-demand skills for data analysts?
        providing insights into the most valuable skills for job seekers. 
 */
 
- SELECT
+SELECT
     s.skills,
     COUNT(jp.job_id) AS number_of_jobs,
     MIN(jp.salary_year_avg)::INT AS min_salary,
@@ -23,6 +23,6 @@ WHERE
     jp.job_work_from_home = TRUE
 GROUP BY
     s.skills
-ORDER BYa
+ORDER BY
     number_of_jobs DESC
 LIMIT 5;
